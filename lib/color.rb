@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # :title: Color -- Colour Management with Ruby
 # :main: README.rdoc
 
@@ -44,6 +46,7 @@ module Color
     self.names = nil unless defined? @names
     @names
   end
+
   def names=(n) # :nodoc:
     @names = Array(n).flatten.compact.map(&:to_s).map(&:downcase).sort.uniq
   end
@@ -59,7 +62,7 @@ class << Color
   # Returns +true+ if the value is within COLOR_EPSILON of zero or less than
   # zero.
   def near_zero_or_less?(value)
-    (value < 0.0 or near_zero?(value))
+    ((value < 0.0) || near_zero?(value))
   end
 
   # Returns +true+ if the value is within COLOR_EPSILON of one.
@@ -70,7 +73,7 @@ class << Color
   # Returns +true+ if the value is within COLOR_EPSILON of one or more than
   # one.
   def near_one_or_more?(value)
-    (value > 1.0 or near_one?(value))
+    ((value > 1.0) || near_one?(value))
   end
 
   # Returns +true+ if the two values provided are near each other.
@@ -82,7 +85,8 @@ class << Color
   # conversions are required, this all conversions will be implemented
   # using the default conversion mechanism.
   def equivalent?(a, b)
-    return false unless a.kind_of?(Color) && b.kind_of?(Color)
+    return false unless a.is_a?(Color) && b.is_a?(Color)
+
     a.to_a.zip(a.coerce(b).to_a).all? { |(x, y)| near?(x, y) }
   end
 
@@ -107,7 +111,7 @@ class << Color
 
   # Normalizes the value to the specified range.
   def normalize_to_range(value, range)
-    range = (range.end..range.begin) if (range.end < range.begin)
+    range = (range.end..range.begin) if range.end < range.begin
 
     if value <= range.begin
       range.begin
@@ -126,12 +130,13 @@ class << Color
 
   # Normalize the value to the range (0) .. (65535).
   def normalize_word(value)
-    normalize_to_range(value, 0..65535).to_i
+    normalize_to_range(value, 0..65_535).to_i
   end
   alias normalize_16bit normalize_word
 end
 
 require 'color/rgb'
+require 'color/argb'
 require 'color/cmyk'
 require 'color/grayscale'
 require 'color/hsl'
@@ -141,7 +146,7 @@ require 'color/css'
 class << Color
   def const_missing(name) #:nodoc:
     case name
-    when "VERSION", :VERSION, "COLOR_TOOLS_VERSION", :COLOR_TOOLS_VERSION
+    when 'VERSION', :VERSION, 'COLOR_TOOLS_VERSION', :COLOR_TOOLS_VERSION
       warn "Color::#{name} has been deprecated. Use Color::COLOR_VERSION instead."
       Color::COLOR_VERSION
     else
@@ -171,7 +176,7 @@ class << Color
             when :hsl
               Color::HSL.new(*values)
             when :rgb
-              values = [ values ].flatten
+              values = [values].flatten
               if values.size == 1
                 Color::RGB.from_html(*values)
               else
